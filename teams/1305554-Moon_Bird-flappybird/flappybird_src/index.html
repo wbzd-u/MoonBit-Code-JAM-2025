@@ -1,0 +1,1938 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#1e3a8a">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600;700&display=swap" rel="stylesheet">
+    <title>Flappy Bird </title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #000000, #1a2a6c, #000000);
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        
+        #mainContainer {
+            display: flex;
+            gap: 60px;
+            max-width: 1200px;
+            width: 100%;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .glass-panel {
+            width: 320px;
+            background: linear-gradient(160deg, rgba(255, 255, 255, 0.10), rgba(32, 178, 170, 0.14));
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 25px 45px rgba(15, 23, 42, 0.45), inset 0 0 1px rgba(255, 255, 255, 0.18);
+            border: 1px solid rgba(148, 210, 255, 0.28);
+            color: #aee6ff;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(135, 206, 235, 0.3) transparent;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            margin-top: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .glass-panel::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: 20px;
+            background: linear-gradient(140deg, rgba(255, 255, 255, 0.2) 0%, transparent 35%, transparent 70%, rgba(138, 43, 226, 0.25) 100%);
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        
+        .glass-panel::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .glass-panel::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .glass-panel::-webkit-scrollbar-thumb {
+            background: rgba(135, 206, 235, 0.3);
+            border-radius: 3px;
+        }
+        
+        #infoPanel {
+            height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .info-section {
+            margin-bottom: 20px;
+        }
+        
+        .info-section:last-child {
+            margin-bottom: 0;
+        }
+        
+        .info-section:first-child {
+            margin-bottom: 15px;
+        }
+        
+        .info-section h3 {
+            margin: 0 0 15px 0;
+            font-size: 18px;
+            color: #66f8ff;
+            letter-spacing: 0.02em;
+            text-shadow: 0 2px 10px rgba(0, 255, 209, 0.35);
+        }
+        
+        .info-section p {
+            margin: 0 0 15px 0;
+            line-height: 1.5;
+            font-size: 14px;
+            color: #d4e6ff;
+        }
+        
+        .game-modes h4 {
+            margin: 10px 0 8px 0;
+            font-size: 16px;
+            color: #79fff3;
+            font-weight: 600;
+        }
+        
+        .game-modes ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        .game-modes li {
+            margin-bottom: 5px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        .items-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .item-card {
+            display: flex;
+            align-items: center;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(21, 94, 125, 0.12));
+            border-radius: 12px;
+            padding: 10px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(94, 234, 212, 0.2);
+            box-shadow: 0 8px 15px rgba(13, 148, 136, 0.15);
+        }
+        
+        .item-card:hover {
+            background: rgba(94, 234, 212, 0.28);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 25px rgba(13, 148, 136, 0.28);
+            border-color: rgba(165, 243, 252, 0.4);
+        }
+        
+        .item-icon {
+            font-size: 20px;
+            margin-right: 8px;
+            width: 24px;
+            text-align: center;
+        }
+        
+        .item-info {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+        
+        .item-info strong {
+            font-size: 12px;
+            color: #67e8f9;
+            margin-bottom: 2px;
+            letter-spacing: 0.02em;
+        }
+        
+        .item-info span {
+            font-size: 10px;
+            color: #dbeafe;
+        }
+        
+        .evolution-stages {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .stage::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #38bdf8, #d946ef);
+            margin-right: 12px;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.6);
+        }
+        
+        .stage {
+            display: flex;
+            align-items: center;
+            background: linear-gradient(120deg, rgba(148, 163, 255, 0.12), rgba(59, 130, 246, 0.08));
+            border-radius: 8px;
+            padding: 8px 12px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(94, 234, 212, 0.18);
+        }
+        
+        .stage:hover {
+            background: rgba(94, 234, 212, 0.25);
+            transform: translateX(8px);
+            box-shadow: 0 8px 22px rgba(56, 189, 248, 0.25);
+        }
+        
+        .stage-icon {
+            font-size: 18px;
+            margin-right: 10px;
+            width: 24px;
+            text-align: center;
+        }
+        
+        .stage span:last-child {
+            font-size: 13px;
+            color: #dbeafe;
+        }
+        
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .control-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(120deg, rgba(255, 255, 255, 0.12), rgba(21, 94, 125, 0.18));
+            border-radius: 8px;
+            padding: 8px 12px;
+            border: 1px solid rgba(94, 234, 212, 0.24);
+            box-shadow: 0 10px 20px rgba(13, 148, 136, 0.15);
+        }
+        
+        kbd {
+            background: rgba(129, 212, 250, 0.18);
+            border: 1px solid rgba(165, 243, 252, 0.35);
+            border-radius: 4px;
+            padding: 2px 8px;
+            font-family: monospace;
+            font-size: 11px;
+            color: #bbf7ff;
+            box-shadow: inset 0 0 8px rgba(94, 234, 212, 0.35);
+        }
+        
+        .control-item span {
+            font-size: 13px;
+            color: #d1f8ff;
+        }
+        
+        /* 游戏区域样式 */
+        #gameArea {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 15px;
+            min-height: 600px;
+            flex: 1;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* 游戏HUD样式 */
+        #gameHUD {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            width: 100%;
+            max-width: 640px;
+            background: linear-gradient(135deg, rgba(22, 30, 84, 0.92), rgba(7, 15, 43, 0.92));
+            backdrop-filter: blur(22px);
+            border-radius: 20px;
+            padding: 15px 25px;
+            margin-bottom: 15px;
+            box-shadow: 0 20px 45px rgba(8, 16, 40, 0.6);
+            border: 1px solid rgba(148, 210, 255, 0.35);
+            flex-wrap: wrap;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #gameHUD::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(120deg, rgba(99, 102, 241, 0.18), rgba(168, 85, 247, 0.25), rgba(59, 130, 246, 0.2));
+            mix-blend-mode: screen;
+            opacity: 0.7;
+            pointer-events: none;
+        }
+        
+        .hud-section {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: nowrap;
+        }
+        
+        .hud-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(37, 99, 235, 0.18);
+            padding: 10px 15px;
+            border-radius: 20px;
+            transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease, color 0.3s ease;
+            border: 1px solid rgba(96, 165, 250, 0.45);
+            min-width: 80px;
+            white-space: nowrap;
+            backdrop-filter: blur(6px);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .hud-item:hover {
+            background: rgba(37, 99, 235, 0.32);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(59, 130, 246, 0.4);
+        }
+        
+        .hud-icon {
+            font-size: 18px;
+            filter: drop-shadow(0 2px 8px rgba(96, 165, 250, 0.35));
+        }
+        
+        .hud-label {
+            font-size: 12px;
+            color: #a5c8ff;
+            font-weight: 600;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+        }
+        
+        .hud-value {
+            font-size: 16px;
+            font-weight: bold;
+            color: #FFFFFF;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9);
+        }
+
+        /* 避免数值变动引起布局抖动：固定字符宽度并对齐 */
+        #score {
+            display: inline-block;
+            min-width: 4ch;
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+            font-feature-settings: "tnum";
+        }
+        #combo {
+            display: inline-block;
+            min-width: 3ch;
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+            font-feature-settings: "tnum";
+        }
+        
+        /* 涅槃提示样式 */
+        .nirvana-notification {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.95), rgba(244, 114, 182, 0.92), rgba(192, 132, 252, 0.95));
+            border-radius: 15px;
+            padding: 12px 20px;
+            box-shadow: 0 20px 45px rgba(244, 114, 182, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            animation: nirvanaGlow 2s ease-in-out;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        
+        .nirvana-text {
+            color: #FFFFFF;
+            font-weight: bold;
+            font-size: 16px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            animation: nirvanaPulse 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes nirvanaGlow {
+            0% { 
+                opacity: 0; 
+                transform: scale(0.8) translateY(-20px);
+                box-shadow: 0 0 0 rgba(255, 107, 107, 0);
+            }
+            50% { 
+                opacity: 1; 
+                transform: scale(1.1) translateY(0);
+                box-shadow: 0 8px 32px rgba(255, 107, 107, 0.6);
+            }
+            100% { 
+                opacity: 1; 
+                transform: scale(1) translateY(0);
+                box-shadow: 0 8px 32px rgba(255, 107, 107, 0.4);
+            }
+        }
+        
+        @keyframes nirvanaPulse {
+            0%, 100% { 
+                transform: scale(1);
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            }
+            50% { 
+                transform: scale(1.05);
+                text-shadow: 0 2px 8px rgba(255, 255, 255, 0.8);
+            }
+        }
+        
+        .lives-container {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+        
+        .life-heart {
+            font-size: 16px;
+            color: #DC2626;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+            animation: heartbeat 1.5s ease-in-out infinite;
+            filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.4));
+        }
+        
+        .life-heart.empty {
+            color: #9CA3AF;
+            opacity: 0.4;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+        
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        /* 分数变化动画 */
+        .score-flash {
+            animation: scoreFlash 0.6s ease-out;
+        }
+        
+        @keyframes scoreFlash {
+            0% { transform: scale(1); color: #1E3A8A; }
+            50% { transform: scale(1.2); color: #3B82F6; }
+            100% { transform: scale(1); color: #1E3A8A; }
+        }
+        
+        /* 连击效果 */
+        .combo-active {
+            animation: comboGlow 0.5s ease-out;
+        }
+        
+        @keyframes comboGlow {
+            0% { text-shadow: 0 0 5px #3B82F6; }
+            50% { text-shadow: 0 0 15px #3B82F6, 0 0 25px #60A5FA; }
+            100% { text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.9); }
+        }
+        
+        #gameContainer {
+            position: relative;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #canvas {
+            display: block;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+            border-radius: 16px;
+            border: 4px solid rgba(135, 206, 235, 0.8);
+            box-shadow: 0 0 20px rgba(135, 206, 235, 0.3), 0 0 0 1px rgba(0, 0, 0, 0.2) inset;
+        }
+        
+        /* 右侧音效控制面板 */
+        #audioPanel {
+            height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .audio-section {
+            margin-bottom: 20px;
+        }
+        
+        .audio-section h3 {
+            margin: 0 0 15px 0;
+            font-size: 18px;
+            color: #66f8ff;
+            text-shadow: 0 2px 10px rgba(0,255,209,0.25);
+        }
+        
+        .audio-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .audio-control-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 12px;
+        }
+        
+        .audio-control-item button {
+            background: rgba(135, 206, 235, 0.2);
+            border: 1px solid rgba(135, 206, 235, 0.3);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: #87CEEB;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .audio-control-item button:hover {
+            background: rgba(135, 206, 235, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .volume-control input[type="range"] {
+            flex: 1;
+            height: 6px;
+            background: rgba(135, 206, 235, 0.2);
+            border-radius: 3px;
+            outline: none;
+        }
+        
+        .volume-control input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #20B2AA;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        .volume-control span {
+            font-size: 12px;
+            color: #87CEEB;
+            min-width: 30px;
+        }
+        
+        .combined-audio-control {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 12px;
+        }
+        
+        .combined-audio-control button {
+            background: rgba(135, 206, 235, 0.2);
+            border: 1px solid rgba(135, 206, 235, 0.3);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: #87CEEB;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        
+        .combined-audio-control button:hover {
+            background: rgba(135, 206, 235, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .combined-audio-control .volume-control {
+            flex: 1;
+            margin: 0;
+        }
+        
+        .game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(160deg, rgba(15, 23, 42, 0.85), rgba(30, 58, 138, 0.75));
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            color: #e0f2fe;
+            padding: 40px 35px;
+            border-radius: 24px;
+            text-align: center;
+            font-size: 28px;
+            font-weight: 700;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5), 
+                        inset 0 0 1px rgba(255, 255, 255, 0.2),
+                        0 0 40px rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            letter-spacing: 0.03em;
+            min-width: 320px;
+            z-index: 1000;
+            overflow: hidden;
+        }
+        
+        .game-over::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: 24px;
+            background: linear-gradient(140deg, rgba(239, 68, 68, 0.15) 0%, transparent 50%, rgba(220, 38, 38, 0.1) 100%);
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        
+        .game-over > * {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .game-over button {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.9) 0%, rgba(220, 38, 38, 0.9) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 14px 28px;
+            margin: 8px 0;
+            border-radius: 16px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            letter-spacing: 0.02em;
+            width: 100%;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        
+        .game-over button:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 12px 30px rgba(239, 68, 68, 0.4),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            background: linear-gradient(135deg, rgba(248, 113, 113, 0.95) 0%, rgba(239, 68, 68, 0.95) 100%);
+        }
+        
+        .game-over button:active {
+            transform: translateY(-1px) scale(0.98);
+        }
+        
+        .start-screen {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(160deg, rgba(15, 23, 42, 0.85), rgba(30, 58, 138, 0.75));
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            color: #e0f2fe;
+            padding: 35px 30px;
+            border-radius: 24px;
+            text-align: center;
+            font-size: 22px;
+            font-weight: 700;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5), 
+                        inset 0 0 1px rgba(255, 255, 255, 0.2),
+                        0 0 40px rgba(99, 102, 241, 0.15);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            letter-spacing: 0.02em;
+            min-width: 300px;
+            z-index: 1000;
+            overflow: hidden;
+        }
+        
+        .start-screen::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: 24px;
+            background: linear-gradient(140deg, rgba(99, 102, 241, 0.15) 0%, transparent 50%, rgba(139, 92, 246, 0.1) 100%);
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        
+        .start-screen > * {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .start-screen button {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.9) 0%, rgba(139, 92, 246, 0.9) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 14px 28px;
+            margin: 8px 0;
+            border-radius: 16px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            letter-spacing: 0.02em;
+            width: 100%;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        
+        .start-screen button:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 12px 30px rgba(99, 102, 241, 0.4),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            background: linear-gradient(135deg, rgba(129, 140, 248, 0.95) 0%, rgba(167, 139, 250, 0.95) 100%);
+        }
+        
+        .start-screen button:active {
+            transform: translateY(-1px) scale(0.98);
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 1024px) {
+            body {
+                align-items: center;
+                justify-content: center;
+            }
+            
+            #mainContainer {
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 30px;
+            }
+            
+            #infoPanel, #audioPanel {
+                width: 100%;
+                max-width: 640px;
+                height: auto;
+                max-height: 50vh;
+                margin-bottom: 20px;
+            }
+            
+            #gameArea {
+                height: auto;
+                justify-content: center;
+            }
+            
+            /* HUD响应式调整 */
+            #gameHUD {
+                flex-direction: column;
+                gap: 10px;
+                padding: 10px 15px;
+            }
+            
+            .hud-section {
+                justify-content: center;
+                gap: 15px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            #mainContainer {
+                align-items: center;
+                justify-content: center;
+            }
+            
+            #infoPanel, #audioPanel {
+                padding: 20px;
+                max-height: 40vh;
+            }
+            
+            #gameArea {
+                justify-content: center;
+            }
+            
+            /* 移动端HUD优化 */
+            #gameHUD {
+                padding: 8px 12px;
+                margin-bottom: 5px;
+            }
+            
+            .hud-item {
+                padding: 6px 10px;
+                gap: 6px;
+            }
+            
+            .hud-icon {
+                font-size: 16px;
+            }
+            
+            .hud-label {
+                font-size: 11px;
+            }
+            
+            .hud-value {
+                font-size: 14px;
+            }
+            
+            .life-heart {
+                font-size: 14px;
+            }
+            
+            .items-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .info-section h3, .audio-section h3 {
+                font-size: 16px;
+            }
+            
+            .item-card {
+                padding: 6px;
+            }
+            
+            .item-icon {
+                font-size: 18px;
+                width: 20px;
+            }
+            
+            .item-info strong {
+                font-size: 11px;
+            }
+            
+            .item-info span {
+                font-size: 9px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                align-items: center;
+                justify-content: center;
+            }
+            
+            #mainContainer {
+                align-items: center;
+                justify-content: center;
+            }
+            
+            #gameArea {
+                justify-content: center;
+            }
+            
+            /* 小屏幕HUD优化 */
+            #gameHUD {
+                padding: 6px 10px;
+                margin-bottom: 5px;
+            }
+            
+            .hud-section {
+                gap: 10px;
+            }
+            
+            .hud-item {
+                padding: 4px 8px;
+                gap: 4px;
+            }
+            
+            .hud-icon {
+                font-size: 14px;
+            }
+            
+            .hud-label {
+                font-size: 10px;
+            }
+            
+            .hud-value {
+                font-size: 12px;
+            }
+            
+            .life-heart {
+                font-size: 12px;
+            }
+            
+            #infoPanel, #audioPanel {
+                padding: 15px;
+                border-radius: 15px;
+            }
+            
+            .info-section, .audio-section {
+                margin-bottom: 20px;
+            }
+            
+            .info-section h3, .audio-section h3 {
+                font-size: 15px;
+                margin-bottom: 10px;
+            }
+            
+            .info-section p {
+                font-size: 13px;
+            }
+            
+            .game-modes h4 {
+                font-size: 14px;
+            }
+            
+            .game-modes li {
+                font-size: 13px;
+            }
+        }
+        
+        h1 {
+            font-size: 36px;
+            margin: 0;
+            color: #f3f4ff;
+            text-shadow: 0 15px 25px rgba(59, 130, 246, 0.35);
+            letter-spacing: 0.04em;
+        }
+
+        h2 {
+            color: #87CEEB;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin: 0 0 20px 0;
+            font-size: 20px;
+            text-align: center;
+        }
+
+        .page-header {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            margin-bottom: 20px;
+            margin-top: 0;
+            padding: 18px 28px;
+            border-radius: 24px;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.18), rgba(168, 85, 247, 0.2));
+            border: 1px solid rgba(148, 210, 255, 0.35);
+            box-shadow: 0 25px 45px rgba(15, 23, 42, 0.45);
+            backdrop-filter: blur(20px);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            flex-shrink: 0;
+        }
+
+        .page-header::before {
+            content: "";
+            position: absolute;
+            top: -40%;
+            right: -10%;
+            width: 260px;
+            height: 260px;
+            background: radial-gradient(circle, rgba(129, 140, 248, 0.4), transparent 65%);
+            filter: blur(0);
+            opacity: 0.6;
+        }
+
+        .page-header::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(120deg, rgba(255, 255, 255, 0.15), transparent 45%);
+            mix-blend-mode: screen;
+            opacity: 0.6;
+        }
+
+        .page-title {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 1;
+        }
+
+        .page-title p {
+            margin: 0;
+            font-size: 16px;
+            color: #dbeafe;
+            letter-spacing: 0.02em;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            z-index: 1;
+        }
+
+        .header-button {
+            border: none;
+            border-radius: 999px;
+            padding: 10px 22px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            letter-spacing: 0.02em;
+            transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+            color: #f8fafc;
+            box-shadow: 0 15px 25px rgba(56, 189, 248, 0.35);
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.9), rgba(56, 189, 248, 0.9));
+        }
+
+        .header-button:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 20px 35px rgba(56, 189, 248, 0.45);
+        }
+
+        .header-button.ghost {
+            background: rgba(15, 23, 42, 0.4);
+            border: 1px solid rgba(148, 210, 255, 0.35);
+            box-shadow: 0 15px 25px rgba(15, 23, 42, 0.4);
+        }
+
+        .header-button.ghost:hover {
+            background: rgba(15, 23, 42, 0.55);
+            box-shadow: 0 20px 32px rgba(15, 23, 42, 0.55);
+        }
+
+        @media (max-width: 768px) {
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .header-actions {
+                width: 100%;
+                justify-content: flex-start;
+                flex-wrap: wrap;
+            }
+        }
+        
+        /* 帮助对话框样式 */
+        .help-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .help-modal.active {
+            display: flex;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .help-dialog {
+            background: linear-gradient(160deg, rgba(15, 23, 42, 0.95), rgba(30, 58, 138, 0.9));
+            backdrop-filter: blur(25px);
+            border-radius: 24px;
+            padding: 30px;
+            max-width: 800px;
+            max-height: 85vh;
+            width: 100%;
+            overflow-y: auto;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6),
+                        inset 0 0 1px rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(148, 210, 255, 0.4);
+            position: relative;
+            animation: slideUp 0.3s ease;
+            color: #e0f2fe;
+        }
+        
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .help-dialog::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: 24px;
+            background: linear-gradient(140deg, rgba(99, 102, 241, 0.2) 0%, transparent 50%, rgba(139, 92, 246, 0.15) 100%);
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        
+        .help-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(148, 210, 255, 0.3);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .help-header h2 {
+            margin: 0;
+            font-size: 28px;
+            color: #66f8ff;
+            text-shadow: 0 2px 10px rgba(0, 255, 209, 0.4);
+            letter-spacing: 0.02em;
+        }
+        
+        .help-close {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: #fca5a5;
+            border-radius: 12px;
+            width: 36px;
+            height: 36px;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .help-close:hover {
+            background: rgba(239, 68, 68, 0.4);
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+        }
+        
+        .help-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .help-section {
+            margin-bottom: 25px;
+        }
+        
+        .help-section:last-child {
+            margin-bottom: 0;
+        }
+        
+        .help-section h3 {
+            margin: 0 0 12px 0;
+            font-size: 20px;
+            color: #79fff3;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .help-section p {
+            margin: 0 0 12px 0;
+            line-height: 1.7;
+            font-size: 14px;
+            color: #d4e6ff;
+        }
+        
+        .help-section ul {
+            margin: 8px 0;
+            padding-left: 24px;
+        }
+        
+        .help-section li {
+            margin-bottom: 8px;
+            line-height: 1.6;
+            font-size: 14px;
+            color: #d4e6ff;
+        }
+        
+        .help-tips {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(168, 85, 247, 0.15));
+            border-radius: 12px;
+            padding: 15px;
+            border: 1px solid rgba(148, 210, 255, 0.3);
+            margin-top: 15px;
+        }
+        
+        .help-tips h4 {
+            margin: 0 0 10px 0;
+            font-size: 16px;
+            color: #fbbf24;
+            font-weight: 600;
+        }
+        
+        .help-tips ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        .help-tips li {
+            margin-bottom: 6px;
+            color: #e0f2fe;
+        }
+        
+        .help-shortcuts {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .help-shortcut-item {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid rgba(148, 210, 255, 0.2);
+        }
+        
+        .help-shortcut-item kbd {
+            background: rgba(129, 212, 250, 0.25);
+            border: 1px solid rgba(165, 243, 252, 0.4);
+            border-radius: 6px;
+            padding: 4px 10px;
+            font-family: monospace;
+            font-size: 12px;
+            color: #bbf7ff;
+            box-shadow: inset 0 0 8px rgba(94, 234, 212, 0.4);
+            min-width: 60px;
+            text-align: center;
+        }
+        
+        .help-shortcut-item span {
+            font-size: 13px;
+            color: #d1f8ff;
+            flex: 1;
+        }
+        
+        /* 帮助对话框响应式设计 */
+        @media (max-width: 768px) {
+            .help-dialog {
+                padding: 20px;
+                max-height: 90vh;
+                border-radius: 20px;
+            }
+            
+            .help-header h2 {
+                font-size: 24px;
+            }
+            
+            .help-section h3 {
+                font-size: 18px;
+            }
+            
+            .help-shortcuts {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .help-dialog {
+                padding: 15px;
+                max-height: 95vh;
+                border-radius: 16px;
+            }
+            
+            .help-header {
+                margin-bottom: 20px;
+                padding-bottom: 12px;
+            }
+            
+            .help-header h2 {
+                font-size: 20px;
+            }
+            
+            .help-section {
+                margin-bottom: 20px;
+            }
+            
+            .help-section h3 {
+                font-size: 16px;
+            }
+            
+            .help-section p,
+            .help-section li {
+                font-size: 13px;
+            }
+            
+            .help-tips {
+                padding: 12px;
+            }
+            
+            .help-tips h4 {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="page-header">
+        <div class="page-title">
+            <h1>Flappy Bird 增强版</h1>
+            <p>驾驭神龙之力，穿越霓光天幕，刷新你的传奇纪录。</p>
+        </div>
+        <div class="header-actions">
+            <button class="header-button" onclick="selectGameMode(0)">立即开飞</button>
+            <button class="header-button ghost" onclick="showHelp()">游戏指南</button>
+        </div>
+    </header>
+    <div id="mainContainer">
+        <!-- 左侧信息面板 -->
+        <div id="infoPanel" class="glass-panel">
+            <div class="info-section">
+                <h2>Flappy Bird</h2>
+                <h3>🎮 游戏介绍</h3>
+                <p>控制小鸟穿越管道，收集道具，体验形态进化，挑战高分！</p>
+                <div class="game-modes">
+                    <h4>游戏模式</h4>
+                    <ul>
+                        <li><strong style="color: #60a5fa;">经典模式</strong> - 传统道具玩法，收集道具获得各种效果</li>
+                        <li><strong style="color: #34d399;">经典模式（无道具）</strong> - 纯粹技巧挑战，无道具干扰</li>
+                        <li><strong style="color: #f472b6;">极速模式</strong> - 固定高速节奏，奖励加倍，考验反应速度。保持高动量条可获得额外分数奖励（50-75%：+1分，75-100%：+2分）</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="info-section">
+                <h3>🛡️ 道具系统</h3>
+                <div class="items-grid">
+                    <div class="item-card">
+                        <div class="item-icon">🛡️</div>
+                        <div class="item-info">
+                            <strong>护盾</strong>
+                            <span>3秒无敌</span>
+                        </div>
+                    </div>
+                    <div class="item-card">
+                        <div class="item-icon">⚡</div>
+                        <div class="item-info">
+                            <strong>加速</strong>
+                            <span>2倍速度</span>
+                        </div>
+                    </div>
+                    <div class="item-card">
+                        <div class="item-icon">🔍</div>
+                        <div class="item-info">
+                            <strong>缩小</strong>
+                            <span>体型减半</span>
+                        </div>
+                    </div>
+                    <div class="item-card">
+                        <div class="item-icon">🧲</div>
+                        <div class="item-info">
+                            <strong>磁铁</strong>
+                            <span>按键反转</span>
+                        </div>
+                    </div>
+                    <div class="item-card">
+                        <div class="item-icon">🔄</div>
+                        <div class="item-info">
+                            <strong>重力反转</strong>
+                            <span>重力倒置</span>
+                        </div>
+                    </div>
+                    <div class="item-card">
+                        <div class="item-icon">🌀</div>
+                        <div class="item-info">
+                            <strong>传送门</strong>
+                            <span>瞬间传送</span>
+                        </div>
+                    </div>
+                    <div class="item-card">
+                        <div class="item-icon">✖</div>
+                        <div class="item-info">
+                            <strong>分数翻倍</strong>
+                            <span>双倍得分</span>
+                        </div>
+                    </div>
+                    <div class="item-card">
+                        <div class="item-icon">❤️</div>
+                        <div class="item-info">
+                            <strong>生命值</strong>
+                            <span>增加生命</span>
+                        </div>
+                    </div>
+                    <div class="item-card">
+                        <div class="item-icon">💰</div>
+                        <div class="item-info">
+                            <strong>金币</strong>
+                            <span>收集财富</span>
+                        </div>
+                    </div>
+                    <div class="item-card">
+                        <div class="item-icon">🔥</div>
+                        <div class="item-info">
+                            <strong>进化加速</strong>
+                            <span>形态升级</span>
+                        </div>
+                    </div>
+                    <div class="item-card">
+                        <div class="item-icon">👻</div>
+                        <div class="item-info">
+                            <strong>隐形道具</strong>
+                            <span>完全隐形0.5秒</span>
+                        </div>
+                    </div>
+                    <div class="item-card">
+                        <div class="item-icon">🔍</div>
+                        <div class="item-info">
+                            <strong>放大道具</strong>
+                            <span>体型回到第一阶段</span>
+                        </div>
+                    </div>
+                    <div class="item-card">
+                        <div class="item-icon">🧊</div>
+                        <div class="item-info">
+                            <strong>冰冻</strong>
+                            <span>0.3秒内无法操控，但仍受重力影响</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="info-section">
+                <h3>🐦 形态进化</h3>
+                <div class="evolution-stages">
+                    <div class="stage">
+                        <span class="stage-icon">🐣</span>
+                        <span>雏鸟 (0分)</span>
+                    </div>
+                    <div class="stage">
+                        <span class="stage-icon">🐤</span>
+                        <span>成鸟 (5分)</span>
+                    </div>
+                    <div class="stage">
+                        <span class="stage-icon">🦅</span>
+                        <span>雄鹰 (10分)</span>
+                    </div>
+                    <div class="stage">
+                        <span class="stage-icon">🔥</span>
+                        <span>凤凰 (15分)</span>
+                    </div>
+                    <div class="stage">
+                        <span class="stage-icon">🐉</span>
+                        <span>神龙 (50分)</span>
+                    </div>
+                </div>
+                <div class="evolution-extras" style="margin-top:8px; font-size: 12px; color:#cbd6ff; line-height:1.6;">
+                    <div style="margin-bottom: 6px;"><strong style="color: #fbbf24;">🔥 凤凰涅槃</strong>：碰撞时有概率无损重生并重置场景</div>
+                    <div style="margin-bottom: 6px;"><strong style="color: #a78bfa;">🐉 龙威</strong>：每5秒触发2秒的加速与护盾强化，充能条满时可主动释放</div>
+                    <div style="color: #94a3b8;">其他形态能力：持续开发中</div>
+                </div>
+            </div>
+            
+            <div class="info-section">
+                <h3>🎯 操作说明</h3>
+                <div class="controls">
+                    <div class="control-item">
+                        <kbd>空格键</kbd>
+                        <span>跳跃/开始游戏</span>
+                    </div>
+                    <div class="control-item">
+                        <kbd>↑↓</kbd>
+                        <span>上下移动</span>
+                    </div>
+                    <div class="control-item">
+                        <kbd>←→</kbd>
+                        <span>控制速度</span>
+                    </div>
+                    <div class="control-item" style="margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(148, 210, 255, 0.2);">
+                        <span style="font-size: 14px; color: #79fff3;">📱 移动端/触摸控制</span>
+                    </div>
+                    <div class="control-item">
+                        <span>点击屏幕</span>
+                        <span>跳跃/开始游戏</span>
+                    </div>
+                    <div class="control-item">
+                        <span>上下滑动</span>
+                        <span>上下移动</span>
+                    </div>
+                    <div class="control-item">
+                        <span>左右滑动</span>
+                        <span>控制速度</span>
+                    </div>
+                </div>
+                <div style="margin-top: 12px; padding: 10px; background: rgba(59, 130, 246, 0.1); border-radius: 8px; border: 1px solid rgba(148, 210, 255, 0.2);">
+                    <div style="font-size: 12px; color: #cbd6ff; line-height: 1.6;">
+                        <strong style="color: #79fff3;">💡 游戏技巧：</strong><br>
+                        • 保持节奏，不要过度操作<br>
+                        • 合理利用道具效果<br>
+                        • 形态进化带来强大能力<br>
+                        • 连击可以获得额外分数
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 游戏区域 -->
+        <div id="gameArea">
+            <!-- 涅槃提示 -->
+            <div id="nirvanaNotification" class="nirvana-notification" style="display: none;">
+                <div class="nirvana-text"> 凤凰涅槃重生！</div>
+            </div>
+            
+            <!-- 游戏HUD信息条 -->
+            <div id="gameHUD">
+                <div class="hud-section">
+                    <div class="hud-item score">
+                        <span class="hud-icon">🏆</span>
+                        <span class="hud-label">分数</span>
+                        <span id="score" class="hud-value">0</span>
+                    </div>
+                    <div class="hud-item lives">
+                        <span class="hud-icon">❤️</span>
+                        <span class="hud-label">生命</span>
+                        <span id="lives" class="hud-value">1</span>
+                    </div>
+                </div>
+                <div class="hud-section">
+                    <div class="hud-item evolution">
+                        <span class="hud-icon">🐦</span>
+                        <span class="hud-label">形态</span>
+                        <span id="evolution" class="hud-value">雏鸟</span>
+                    </div>
+                    <div class="hud-item combo">
+                        <span class="hud-icon">⚡</span>
+                        <span class="hud-label">连击</span>
+                        <span id="combo" class="hud-value">0</span>
+                    </div>
+                </div>
+                <div class="hud-section">
+                    <div class="hud-item mode">
+                        <span class="hud-icon">🎮</span>
+                        <span class="hud-label">模式</span>
+                        <span id="currentMode" class="hud-value">经典</span>
+                    </div>
+                    <div class="hud-item time" id="timeItem" style="display:none;">
+                        <span class="hud-icon">⏱️</span>
+                        <span class="hud-label">时间</span>
+                        <span id="time" class="hud-value">30s</span>
+                    </div>
+                    <div class="hud-item gold">
+                        <span class="hud-icon">💰</span>
+                        <span class="hud-label">金币</span>
+                        <span id="gold" class="hud-value">0</span>
+                    </div>
+                    <div class="hud-item weather">
+                        <span class="hud-icon">☀️</span>
+                        <span class="hud-label">天气</span>
+                        <span id="weather" class="hud-value">晴朗</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 游戏画布 -->
+            <div id="gameContainer">
+                <canvas id="canvas" width="160" height="160"></canvas>
+                <div id="startScreen" class="start-screen" style="display: none;">
+                    <div style="font-size: 24px; margin-bottom: 16px; text-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);">FLAPPY BIRD 增强版</div>
+                    <div style="margin-bottom: 20px; font-size: 15px; color: #cbd5e1; font-weight: 500;">选择游戏模式：</div>
+                    <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
+                        <button onclick="selectGameMode(0)">经典模式</button>
+                        <button onclick="selectGameMode(1)">经典模式（无道具）</button>
+                        <button onclick="selectGameMode(3)">极速模式</button>
+                    </div>
+                    <div style="font-size: 13px; color: #94a3b8; font-weight: 400; margin-top: 8px;">按空格键快速开始经典模式</div>
+                </div>
+                <div id="gameOverScreen" class="game-over" style="display: none;">
+                    <div style="font-size: 32px; margin-bottom: 20px; text-shadow: 0 2px 10px rgba(239, 68, 68, 0.4);">游戏结束!</div>
+                    <div id="finalScore" style="margin-bottom: 24px; font-size: 20px; color: #fbbf24; font-weight: 600; text-shadow: 0 2px 8px rgba(251, 191, 36, 0.3);"></div>
+                    <div style="margin-bottom: 20px; font-size: 15px; color: #cbd5e1; font-weight: 500;">选择操作：</div>
+                    <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+                        <button onclick="restartCurrentMode()">重新开始当前模式</button>
+                        <button onclick="showModeSelection()">选择其他模式</button>
+                    </div>
+                    <div style="font-size: 13px; color: #94a3b8; font-weight: 400; margin-top: 8px;">按空格键重新开始当前模式</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 右侧音效控制面板 -->
+        <div id="audioPanel" class="glass-panel">
+            <div class="audio-section">
+                <h3>🔊 音效控制</h3>
+                <div class="audio-controls">
+                    <!-- 合并的音效控制行 -->
+                    <div class="combined-audio-control">
+                        <button id="muteButton" onclick="toggleMute()">🔊 音效开关</button>
+                        <div class="volume-control">
+                            <span>音量:</span>
+                            <input type="range" id="volumeSlider" min="0" max="100" value="50">
+                            <span id="volumeValue">50%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            
+            <div class="audio-section">
+                <h3>🏆 游戏统计</h3>
+                <div class="audio-controls">
+                    <div class="audio-control-item">
+                        <span>最高分:</span>
+                        <span id="highScore">0</span>
+                    </div>
+                <div class="audio-control-item">
+                    <span>最大连击:</span>
+                    <span id="maxCombo">0</span>
+                </div>
+                </div>
+            </div>
+            
+            <div class="audio-section">
+                <h3>⚙️ 游戏设置</h3>
+                <div class="audio-controls">
+                    <div class="audio-control-item">
+                        <button onclick="resetHighScore()">🔄 重置最高分</button>
+                        <span>清空记录</span>
+                    </div>
+                    <div class="audio-control-item">
+                        <button onclick="toggleFullscreen()">🖥️ 全屏模式</button>
+                        <span id="fullscreenStatus">关闭</span>
+                    </div>
+                    <div class="audio-control-item">
+                        <button onclick="showHelp()">❓ 游戏帮助</button>
+                        <span>查看说明</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 帮助对话框 -->
+    <div id="helpModal" class="help-modal">
+        <div class="help-dialog">
+            <div class="help-header">
+                <h2>📖 游戏指南</h2>
+                <button class="help-close" onclick="closeHelp()" title="关闭">×</button>
+            </div>
+            <div class="help-content">
+                <div class="help-section">
+                    <h3>🎮 游戏简介</h3>
+                    <p>欢迎来到 Flappy Bird 增强版！这是一款融合了道具收集、形态进化和多种游戏模式的经典游戏。控制你的小鸟穿越管道，收集道具，解锁强大的形态，挑战更高的分数！</p>
+                </div>
+                
+                <div class="help-section">
+                    <h3>🎯 基本操作</h3>
+                    <div class="help-shortcuts">
+                        <div class="help-shortcut-item">
+                            <kbd>空格</kbd>
+                            <span>跳跃 / 开始游戏</span>
+                        </div>
+                        <div class="help-shortcut-item">
+                            <kbd>↑</kbd>
+                            <span>向上移动</span>
+                        </div>
+                        <div class="help-shortcut-item">
+                            <kbd>↓</kbd>
+                            <span>向下移动</span>
+                        </div>
+                        <div class="help-shortcut-item">
+                            <kbd>←</kbd>
+                            <span>减速</span>
+                        </div>
+                        <div class="help-shortcut-item">
+                            <kbd>→</kbd>
+                            <span>加速</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="help-section">
+                    <h3>🎮 游戏模式</h3>
+                    <ul>
+                        <li><strong>经典模式</strong>：传统道具玩法，收集各种道具获得特殊效果，适合喜欢策略的玩家</li>
+                        <li><strong>经典模式（无道具）</strong>：纯粹技巧挑战，无道具干扰，考验你的操作水平</li>
+                        <li><strong>极速模式</strong>：固定高速节奏，奖励加倍，适合追求刺激的玩家。保持高动量条可获得额外分数奖励（50-75%：+1分，75-100%：+2分）</li>
+                    </ul>
+                </div>
+                
+                <div class="help-section">
+                    <h3>🛡️ 道具系统</h3>
+                    <p>游戏中会出现各种道具，收集它们可以获得不同的效果：</p>
+                    <ul>
+                        <li><strong>🛡️ 护盾</strong>：3秒无敌时间，可以安全穿越管道</li>
+                        <li><strong>⚡ 加速</strong>：2倍速度，快速通过危险区域</li>
+                        <li><strong>🔍 缩小</strong>：体型减半，更容易通过狭窄空间</li>
+                        <li><strong>🧲 磁铁</strong>：按键反转，增加操作难度</li>
+                        <li><strong>🔄 重力反转</strong>：重力倒置，改变移动方向</li>
+                        <li><strong>🌀 传送门</strong>：瞬间传送到安全位置</li>
+                        <li><strong>✖ 分数翻倍</strong>：双倍得分，快速提升分数</li>
+                        <li><strong>❤️ 生命值</strong>：增加一条生命，提高容错率</li>
+                        <li><strong>💰 金币</strong>：收集财富，用于未来功能</li>
+                        <li><strong>🔥 进化加速</strong>：快速升级形态</li>
+                        <li><strong>👻 隐形道具</strong>：完全隐形0.5秒</li>
+                        <li><strong>🔍 放大道具</strong>：体型回到第一阶段</li>
+                        <li><strong>🧊 冰冻</strong>：0.3秒内无法操控</li>
+                    </ul>
+                </div>
+                
+                <div class="help-section">
+                    <h3>🐦 形态进化</h3>
+                    <p>随着分数增加，你的小鸟会进化成更强大的形态：</p>
+                    <ul>
+                        <li><strong>🐣 雏鸟</strong>（0分）：初始形态，基础能力</li>
+                        <li><strong>🐤 成鸟</strong>（5分）：成长形态，能力提升</li>
+                        <li><strong>🦅 雄鹰</strong>（10分）：飞行能力增强</li>
+                        <li><strong>🔥 凤凰</strong>（15分）：解锁涅槃能力，碰撞时有概率无损重生</li>
+                        <li><strong>🐉 神龙</strong>（50分）：最强形态，解锁龙威技能，每5秒触发2秒加速与护盾强化</li>
+                    </ul>
+                    <div class="help-tips">
+                        <h4>💡 形态能力说明</h4>
+                        <ul>
+                            <li><strong>凤凰涅槃</strong>：碰撞时有概率触发，无损重生并重置场景，给你第二次机会</li>
+                            <li><strong>龙威</strong>：神龙形态专属技能，充能条满时可主动释放，获得2秒加速和护盾强化效果</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="help-section">
+                    <h3>💡 游戏技巧</h3>
+                    <div class="help-tips">
+                        <ul>
+                            <li>保持节奏，不要过度操作，稳定的操作比快速反应更重要</li>
+                            <li>合理利用道具效果，护盾和缩小道具在关键时刻非常有用</li>
+                            <li>尽快达到高形态，凤凰和神龙的强大能力能帮你走得更远</li>
+                            <li>连击可以获得额外分数，尽量保持连续通过管道</li>
+                            <li>在极速模式下，提前预判管道位置，保持冷静</li>
+                            <li>神龙形态的龙威技能要合理使用，关键时刻可以救你一命</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="help-section">
+                    <h3>🏆 得分系统</h3>
+                    <ul>
+                        <li>成功通过管道：+1分（极速模式：+2分）</li>
+                        <li>连击奖励：连续通过管道可获得额外分数</li>
+                        <li>分数翻倍道具：短时间内得分翻倍</li>
+                        <li>极速模式动量条奖励：根据动量条高度获得额外分数
+                            <ul style="margin-top: 8px; padding-left: 20px;">
+                                <li>动量条 50-75%：额外 +1 分</li>
+                                <li>动量条 75-100%：额外 +2 分</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        if (typeof window.testSounds !== 'undefined') {
+            delete window.testSounds;
+        }
+        if (typeof window.testJump !== 'undefined') {
+            delete window.testJump;
+        }
+        if (typeof window.testItem !== 'undefined') {
+            delete window.testItem;
+        }
+        if (typeof window.forceTestSound !== 'undefined') {
+            delete window.forceTestSound;
+        }
+        if (typeof window.testSimpleSound !== 'undefined') {
+            delete window.testSimpleSound;
+        }
+        
+        // 音效控制相关函数
+        function toggleMute() {
+            const muteButton = document.getElementById('muteButton');
+            
+            if (muteButton.textContent.includes('🔊')) {
+                muteButton.textContent = '🔇 音效开关';
+            } else {
+                muteButton.textContent = '🔊 音效开关';
+            }
+        }
+        
+        function setVolume(value) {
+            const volumeValue = document.getElementById('volumeValue');
+            if (volumeValue) {
+                volumeValue.textContent = value + '%';
+            }
+        }
+        
+        
+        // 最高分管理
+        let highScore = parseInt(localStorage.getItem('flappyBirdHighScore') || '0');
+        
+        function updateHighScore() {
+            const currentScore = document.getElementById('score') ? parseInt(document.getElementById('score').textContent) : 0;
+            if (currentScore > highScore) {
+                highScore = currentScore;
+                localStorage.setItem('flappyBirdHighScore', highScore.toString());
+                updateHighScoreDisplay();
+            }
+        }
+        
+        function updateHighScoreDisplay() {
+            const highScoreEl = document.getElementById('highScore');
+            if (highScoreEl) {
+                highScoreEl.textContent = highScore;
+            }
+        }
+        
+        function resetHighScore() {
+            highScore = 0;
+            localStorage.setItem('flappyBirdHighScore', '0');
+            updateHighScoreDisplay();
+            
+            // 重置最大连击
+            localStorage.setItem('flappyBirdMaxCombo', '0');
+            const maxComboEl = document.getElementById('maxCombo');
+            if (maxComboEl) {
+                maxComboEl.textContent = '0';
+            }
+            
+            alert('最高分和最大连击已重置！');
+        }
+        
+        function toggleFullscreen() {
+            const fullscreenStatus = document.getElementById('fullscreenStatus');
+            if (!document.fullscreenElement) {
+                // 进入全屏
+                document.documentElement.requestFullscreen().then(() => {
+                    fullscreenStatus.textContent = '开启';
+                }).catch(err => {
+                    alert('无法进入全屏模式，请检查浏览器设置');
+                });
+            } else {
+                // 退出全屏
+                document.exitFullscreen().then(() => {
+                    fullscreenStatus.textContent = '关闭';
+                }).catch(err => {});
+            }
+        }
+        
+        function showHelp() {
+            const modal = document.getElementById('helpModal');
+            if (modal) {
+                modal.classList.add('active');
+                // 阻止背景滚动
+                document.body.style.overflow = 'hidden';
+            }
+        }
+        
+        function closeHelp() {
+            const modal = document.getElementById('helpModal');
+            if (modal) {
+                modal.classList.remove('active');
+                // 恢复背景滚动
+                document.body.style.overflow = '';
+            }
+        }
+        
+        // 点击背景关闭对话框
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById('helpModal');
+            if (modal) {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        closeHelp();
+                    }
+                });
+            }
+            
+            // ESC键关闭对话框
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    const modal = document.getElementById('helpModal');
+                    if (modal && modal.classList.contains('active')) {
+                        closeHelp();
+                    }
+                }
+            });
+        });
+        
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化最高分显示
+            updateHighScoreDisplay();
+            
+            // 初始化音量显示和事件监听
+            const volumeSlider = document.getElementById('volumeSlider');
+            const volumeValue = document.getElementById('volumeValue');
+            if (volumeSlider && volumeValue) {
+                // 初始化显示
+                volumeValue.textContent = volumeSlider.value + '%';
+                
+                // 添加事件监听器
+                volumeSlider.addEventListener('input', function() {
+                    volumeValue.textContent = this.value + '%';
+                });
+                
+                volumeSlider.addEventListener('change', function() {
+                    volumeValue.textContent = this.value + '%';
+                });
+                
+            }
+
+            const scoreElement = document.getElementById('score');
+            if (scoreElement) {
+                const observer = new MutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
+                        if (mutation.type === 'childList' || mutation.type === 'characterData') {
+                            updateHighScore();
+                        }
+                    });
+                });
+                observer.observe(scoreElement, { childList: true, characterData: true, subtree: true });
+            }
+            try {
+                if (typeof updateWeatherDisplay === 'function') {
+                    updateWeatherDisplay();
+                }
+            } catch (e) {}
+        });
+    </script>
+    <script src="game.js?v=2"></script>
+    <script>
+        const isElectron = navigator.userAgent.toLowerCase().includes('electron');
+        const isSecureContext = window.location.protocol === 'https:' || window.location.hostname === 'localhost';
+        if ('serviceWorker' in navigator && isSecureContext && !isElectron) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./service-worker.js').catch((err) => {
+                    console.warn('Service worker registration failed:', err);
+                });
+            });
+        }
+    </script>
+ 
+ </body>
+ </html>

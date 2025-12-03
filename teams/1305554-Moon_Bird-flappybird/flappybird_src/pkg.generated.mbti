@@ -1,0 +1,370 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "sztu_a/flappybird_js"
+
+// Values
+fn add_dragon_charge(State, Int) -> Unit
+
+fn apply_evolution_bonuses(State) -> Unit
+
+fn check_collision(State, Position) -> Bool
+
+fn create_new_pipe(State) -> Unit
+
+fn create_phoenix_rebirth_effect(State, Int, Int) -> Unit
+
+fn export_get_dragon_auto_boost_active() -> Int
+
+fn export_get_dragon_auto_boost_cooldown() -> Int
+
+fn export_get_dragon_auto_boost_duration() -> Int
+
+fn game_init() -> Unit
+
+fn game_start() -> Unit
+
+fn game_update() -> Unit
+
+fn get_active_effects_count() -> Int
+
+fn get_bird_size() -> Int
+
+fn get_bird_x() -> Int
+
+fn get_bird_y() -> Int
+
+fn get_classic_boost_ticks() -> Int
+
+fn get_combo_count() -> Int
+
+fn get_difficulty_level() -> Int
+
+fn get_dragon_auto_boost_active() -> Bool
+
+fn get_dragon_auto_boost_cooldown() -> Int
+
+fn get_dragon_auto_boost_duration() -> Int
+
+fn get_dragon_charge() -> Int
+
+fn get_dragon_charge_threshold() -> Int
+
+fn get_dragon_charge_threshold_value() -> Int
+
+fn get_effect_remaining_time(Int) -> Int
+
+fn get_effect_type(Int) -> Int
+
+fn get_effective_bird_size(State) -> Int
+
+fn get_effective_bird_size_export() -> Int
+
+fn get_evolution_stage() -> Int
+
+fn get_game_mode() -> Int
+
+fn get_game_mode_export() -> Int
+
+fn get_item_type(Int) -> Int
+
+fn get_item_x(Int) -> Int
+
+fn get_item_y(Int) -> Int
+
+fn get_items_count() -> Int
+
+fn get_nirvana_notification_active() -> Bool
+
+fn get_perfect_pipes() -> Int
+
+fn get_phoenix_effect_intensity(Int) -> Int
+
+fn get_phoenix_effect_life(Int) -> Int
+
+fn get_phoenix_effect_phase(Int) -> Int
+
+fn get_phoenix_effect_size(Int) -> Int
+
+fn get_phoenix_effect_x(Int) -> Int
+
+fn get_phoenix_effect_y(Int) -> Int
+
+fn get_phoenix_effects_count() -> Int
+
+fn get_phoenix_rebirth_active() -> Int
+
+fn get_phoenix_rebirth_duration() -> Int
+
+fn get_pipe_h(Int) -> Int
+
+fn get_pipe_rand(Int) -> Int
+
+fn get_pipe_randgap(Int) -> Int
+
+fn get_pipe_speed() -> Int
+
+fn get_pipe_x(Int) -> Int
+
+fn get_pipe_y(Int) -> Int
+
+fn get_pipes_count() -> Int
+
+fn get_player_attack_power() -> Int
+
+fn get_player_current_health() -> Int
+
+fn get_player_experience() -> Int
+
+fn get_player_gold() -> Int
+
+fn get_player_lives() -> Int
+
+fn get_player_max_health() -> Int
+
+fn get_player_skill_points() -> Int
+
+fn get_random_item_type(State) -> ItemType
+
+fn get_rush_meter() -> Int
+
+fn get_rush_mode_ticks() -> Int
+
+fn get_rush_threshold() -> Int
+
+fn get_score() -> Int
+
+fn get_shake_magnitude() -> Int
+
+fn get_shake_ticks() -> Int
+
+fn get_spawn_protection_ticks() -> Int
+
+fn get_start_countdown_ticks() -> Int
+
+fn get_teleport_active() -> Int
+
+fn get_teleport_duration() -> Int
+
+fn get_teleport_elapsed() -> Int
+
+fn get_teleport_progress() -> Int
+
+fn get_teleport_remaining_distance() -> Int
+
+fn get_teleport_total_distance() -> Int
+
+fn get_theme() -> Int
+
+fn get_time_remaining() -> Int
+
+fn get_total_pipes_passed() -> Int
+
+fn handle_input(Bool, Bool, Bool, Bool, Bool) -> Unit
+
+fn handle_input_i(Int, Int, Int, Int, Int) -> Unit
+
+fn has_freeze_effect_export() -> Int
+
+fn has_shield_effect(State) -> Bool
+
+fn has_shield_effect_export() -> Int
+
+fn is_game_over() -> Int
+
+fn is_game_started() -> Int
+
+fn is_item_collected(Int) -> Int
+
+fn is_pipe_next_generated(Int) -> Int
+
+fn is_pipe_scored(Int) -> Int
+
+let pos : Position
+
+fn random_int(Int, State) -> Int
+
+fn random_range(Int, Int, State) -> Int
+
+fn random_range_inclusive(Int, Int, State) -> Int
+
+fn rect_collision(Int, Int, Int, Int, Int, Int, Int, Int) -> Bool
+
+fn render_phoenix_effects(State) -> Unit
+
+fn set_difficulty_level(Int) -> Unit
+
+fn set_game_mode(Int) -> Unit
+
+fn setbird(State, Position) -> Unit
+
+fn setpipe(State, Position) -> Unit
+
+fn spawn_item(Int, Int, ItemType, State) -> Unit
+
+let state : State
+
+fn test_dragon_passive() -> Unit
+
+fn test_phoenix_rebirth() -> Unit
+
+fn test_rush_mode() -> Unit
+
+fn update_dragon_auto_effects(State) -> Unit
+
+fn update_evolution(State) -> Unit
+
+fn update_game_mode_logic(State) -> Unit
+
+fn update_item_effects(State) -> Unit
+
+fn update_items(State) -> Unit
+
+fn update_phoenix_effects(State) -> Unit
+
+fn update_phoenix_effects_export() -> Unit
+
+fn update_teleport(State) -> Unit
+
+// Errors
+
+// Types and methods
+pub enum EvolutionStage {
+  Chick
+  Adult
+  Eagle
+  Phoenix
+  Dragon
+}
+impl Eq for EvolutionStage
+
+pub enum GameMode {
+  Classic
+  Timed
+  Perfect
+  Rush
+  Hard
+  Multiplayer
+}
+impl Eq for GameMode
+
+pub struct Item {
+  mut x : Int
+  y : Int
+  item_type : ItemType
+  duration : Int
+  mut collected : Bool
+}
+
+pub struct ItemEffect {
+  item_type : ItemType
+  mut remaining_time : Int
+  original_value : Int
+}
+
+pub enum ItemType {
+  Shield
+  Hard
+  Shrink
+  Magnet
+  Gravity
+  Teleport
+  ScoreDouble
+  Life
+  Gold
+  Evolution
+  Invisible
+  Enlarge
+  DragonPower
+  Freeze
+  AttackBoost
+}
+impl Eq for ItemType
+
+pub struct PhoenixEffect {
+  x : Int
+  y : Int
+  mut life : Int
+  mut size : Int
+  mut intensity : Int
+  phase : Int
+}
+
+pub struct Pipe {
+  mut x : Int
+  y : Int
+  h : Int
+  rand : Int
+  randgap : Int
+  mut scored : Bool
+  mut next_pipe_generated : Bool
+}
+
+pub struct PlayerCombat {
+  mut attack_power : Int
+  attack_cooldown : Int
+  mut max_health : Int
+  mut current_health : Int
+}
+
+pub struct PlayerStats {
+  mut jump_power : Int
+  mut speed : Int
+  mut size : Int
+  mut lives : Int
+  mut gold : Int
+  mut experience : Int
+}
+
+pub struct Position {
+  mut x : Int
+  mut y : Int
+}
+
+pub struct State {
+  mut count : Int
+  mut gameover : Bool
+  mut game_started : Bool
+  mut random_seed : Int
+  mut score : Int
+  mut pipe_scored : Bool
+  mut pipes : Array[Pipe]
+  mut pipe_speed : Int
+  mut pipe_move_accum : Int
+  mut current_displacement : Int
+  mut game_mode : GameMode
+  mut evolution_stage : EvolutionStage
+  mut player_stats : PlayerStats
+  mut items : Array[Item]
+  mut active_effects : Array[ItemEffect]
+  mut difficulty_level : Int
+  mut theme : Int
+  mut combo_count : Int
+  mut time_remaining : Int
+  mut perfect_pipes : Int
+  mut total_pipes_passed : Int
+  mut player_combat : PlayerCombat
+  mut phoenix_effects : Array[PhoenixEffect]
+  mut nirvana_notification_time : Int
+  mut phoenix_rebirth_active : Bool
+  mut phoenix_rebirth_duration : Int
+  mut dragon_auto_boost_timer : Int
+  mut dragon_auto_boost_cooldown : Int
+  mut dragon_charge : Int
+  mut rush_meter : Int
+  mut rush_mode_ticks : Int
+  mut teleport_active : Bool
+  mut teleport_total_distance : Int
+  mut teleport_remaining_distance : Int
+  mut teleport_duration : Int
+  mut teleport_elapsed : Int
+  mut start_countdown_ticks : Int
+  mut spawn_protection_ticks : Int
+  mut classic_boost_ticks : Int
+  mut shake_ticks : Int
+  mut shake_magnitude : Int
+  mut classic_ramp_ticks : Int
+}
+
+// Type aliases
+
+// Traits
+
